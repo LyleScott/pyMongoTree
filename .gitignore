@@ -1,2 +1,4 @@
 *.pyc
-venv
+venv/*
+!venv/venv.sh
+!venv/requirements
