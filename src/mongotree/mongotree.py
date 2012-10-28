@@ -157,7 +157,7 @@ class MongoTree(object):
             
         return nodes
 
-    def get_node_count(self, roots=None):
+    def node_count(self, roots=None):
         """Return how many nodes there are in the tree.
         
         Args (sequence): Optional. Instead of all roots, specify nodes to start

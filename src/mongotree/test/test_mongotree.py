@@ -105,7 +105,7 @@ class MongoTreeTest(unittest.TestCase):
 </select>"""
         self.tree.fromXml(xml)
         
-        assert self.tree.get_node_count() == 8
+        assert self.tree.node_count() == 8
         
         path = ('select',)
         assert self.tree.path_exists(path)
@@ -128,12 +128,12 @@ class MongoTreeTest(unittest.TestCase):
         """upsert() should save the correct information to the DB."""
         path = ['select',]
         self.tree.upsert(path)
-        assert self.tree.get_node_count() == 1
+        assert self.tree.node_count() == 1
         assert self.tree.path_exists(path)
         
         path = ['select', '*', 'from', 'fruits']
         self.tree.upsert(path)
-        assert self.tree.get_node_count() == 4
+        assert self.tree.node_count() == 4
         assert self.tree.path_exists(path)
         
         self.drop_db()
