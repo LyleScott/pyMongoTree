@@ -24,20 +24,20 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
 
-import cPickle
-import re
-import unittest
 import json
 import jsonpickle
+import re
+import unittest
 
 from mongotree import mongotree
 
 
+# Used to find strings like: ObjectId('508d606afdbf6ddc32ad1225')
 OBJID_RE = r'ObjectId\(\'[a-z0-9]+\'\)'
 
 
 class MongoTreeTest(unittest.TestCase):
-    """TODO"""
+    """Tests the MongoTree class for saneness."""
     
     def setUp(self):
         """Initialization."""
@@ -67,6 +67,7 @@ class MongoTreeTest(unittest.TestCase):
   u'hits': 1,
   u'identifier': u'mongotest',
   u'label': u'select',
+  u'obj': None,
   u'parent': None,
   u'path': u'select'},
  {u'_id': OBJID,
@@ -74,6 +75,7 @@ class MongoTreeTest(unittest.TestCase):
   u'hits': 1,
   u'identifier': u'mongotest',
   u'label': u'*',
+  u'obj': None,
   u'parent': OBJID,
   u'path': u'select|$|*'},
  {u'_id': OBJID,
@@ -81,6 +83,7 @@ class MongoTreeTest(unittest.TestCase):
   u'hits': 1,
   u'identifier': u'mongotest',
   u'label': u'from',
+  u'obj': None,
   u'parent': OBJID,
   u'path': u'select|$|*|$|from'}]"""
         
@@ -319,7 +322,98 @@ class MongoTreeTest(unittest.TestCase):
         """Get a node belonging to a path."""
         path = ['select', 'foo', 'from']
         self.tree.upsert(path)
-        self.assertRaises(ValueError, self.tree.get_node, 'bar')
+        assert self.tree.get_node(['bar']) is None
+        
+        self.drop_db()
+        
+    def test_remove_no_children(self):
+        """Remove a node from a tree."""
+        path1 = ['select', 'foo', 'from', 'bar']
+        self.tree.upsert(path1)
+        path2 = ['select', 'foo', 'from', 'baz']
+        self.tree.upsert(path2)
+        
+        node = self.tree.get_node(path1)
+        self.tree.remove(node)
+        
+        assert self.tree.get_node(path1) is None
+        
+        node = self.tree.get_node(['select', 'foo'])
+        self.tree.remove(node)
+        
+        assert self.tree.get_node(['select', 'foo', 'bar']) is None
+        assert self.tree.get_node(['select', 'foo', 'baz']) is None
+        assert self.tree.get_node(['select', 'foo']) is None
+        
+        self.drop_db()
+        
+    def test_remove_invalid_node(self):
+        """Specifying an invalid node should throw ValueError exception."""
+        path1 = ['select', 'foo', 'from', 'bar']
+        self.tree.upsert(path1)
+        
+        self.assertRaises(ValueError, self.tree.remove, {'invalid': 'node'})
+        
+    def test_parent(self):
+        """Get the parent node of the node pointed at by path."""
+        path = ['select', 'foo', 'from', 'bar']
+        self.tree.upsert(path)
+        
+        assert self.tree.parent(path)['label'] == 'from'
+        
+        self.drop_db()
+        
+    def test_parent_node_not_found(self):
+        """Get the parent node of the node pointed at by path."""
+        path = ['select', 'foo', 'from', 'bar']
+        self.tree.upsert(path)
+        
+        assert self.tree.parent(['select', 'invalid', 'path']) is None
+        
+        self.drop_db()
+        
+    def test_valid_node_with_valid(self):
+        """Should return True if the dict contains all the necessary keys."""
+        node = {'identifier': 'foobar',
+                'label': 'foo',
+                'path': 'foo',
+                'parent': None,
+                'children': [],
+                'hits': 1,
+                'obj': None,
+                '_id': 'abc123'}
+        
+        assert self.tree.valid_node(node)
+        
+        self.drop_db()
+        
+    def test_valid_node_with_different_count(self):
+        """Should return False if dict doesn't contain the necessary keys."""
+        node = {'identifier': 'foobar',
+                'label': 'foo',
+                'path': 'foo',
+                #'parent': None,
+                'children': [],
+                #'hits': 1,
+                'obj': None,
+                '_id': 'abc123'}
+        
+        assert not self.tree.valid_node(node)
+        
+        self.drop_db()
+        
+    def test_valid_node_with_invalid_dict(self):
+        """Should return False if dict doesn't contain the necessary keys."""
+        node = {'identifier': 'foobar',
+                'label': 'foo',
+                'path': 'foo',
+                'INVALIDKEY': None,
+                'children': [],
+                'hits': 1,
+                'obj': None,
+                '_id': 'abc123'}
+        
+        assert not self.tree.valid_node(node)
         
         self.drop_db()
     

@@ -79,11 +79,7 @@ class MongoTree(object):
         
         result = self.db.treefoo.find_one(key)
         
-        if not result:
-            raise ValueError('MongoTree::children:> the node at path %s was '
-                             'not found' % path)
-        
-        return result
+        return result or None
         
     def path_exists(self, path):
         """Check if a nodes exists at a specified path.
@@ -190,7 +186,7 @@ class MongoTree(object):
         """Add a node to the tree.
         
         Args:
-            path (sequence): A sequence containing tokens.
+            path (sequence): A sequence of tokens representing a path to a node.
             obj (pickle): A pickled object stored as a blob on a node.
             hit_inc (int): Incremenet the nodes hit counter.
         """
@@ -227,6 +223,8 @@ class MongoTree(object):
             # Blob data associated with the node.
             if obj and current_path == self.SEPARATOR.join(path):
                 values.setdefault('$set', {})['obj'] = obj
+            else:
+                values.setdefault('$set', {})['obj'] = None
             
             # Write to the db/collection.
             self.db.treefoo.update(key, values, upsert=True)
@@ -238,23 +236,67 @@ class MongoTree(object):
                 values = {'$addToSet': {'children': obj_id}}
                 self.db.treefoo.update(key, values, upsert=True)
                 parent_objid = obj_id
+                
+    def valid_node(self, node):
+        """Indicate if a node is "valid", where valid indicates that it has all
+        and only the keys it is supposed to have.
         
-    '''
-    def remove(self, path):
-        """Remove a node from the tree."""
-        key = {'identifier': self.identifier, 'path': path}
-        self.db.treefoo.remove(key)
+        Args:
+            node (dict):  A dict representing a node.
+            
+        Returns:
+            bool
+        """ 
+        node_keys = node.keys()
+        valid_keys = ('label', 'path', 'parent', 'children', 'hits', 'obj',
+                      'identifier', '_id')
+        
+        if len(node_keys) != len(valid_keys):
+            return False
+        
+        for valid_key in valid_keys:
+            if valid_key not in node_keys:
+                return False
+            
+        return True
+        
+    def remove(self, node):
+        """Remove a node from the tree. If it has children, remove those, too.
+        
+        Arg:
+            node (dict):  A dict representing a node.
+        """
+        if not self.valid_node(node):
+            raise ValueError('MongoTree::remove:> node used for the node '
+                             'argument is not valid.')
+      
+        for child in node['children']:
+            child = self.db.treefoo.find_one({'_id': child})
+            if not child:
+                continue
+            self.remove(child)
+            
+        self.db.treefoo.remove({'_id': node['_id']})
     
     def parent(self, path):
-        """Get the parent of a node."""
-        key = {'identifier': self.identifier, 'path': path}
-        return self.db.treefoo.find_one(key)
+        """Get the parent of a node.
         
-    def siblings(self, path):
-        """Get the siblings of a node."""
-        key = {'identifier': self.identifier, 'parent': path}
-        return self.db.treefoo.find(key)
-    '''
+        Args:
+            path (sequence): A sequence of tokens representing a path to a node.
+        
+        Returns:
+            A dict representing a node || None.
+        """
+        path = self.SEPARATOR.join(path)
+        key = {'identifier': self.identifier, 'path': path}
+        result = self.db.treefoo.find_one(key)
+        
+        if result:
+            parent = result['parent']
+            node = self.db.treefoo.find_one({'_id': parent})
+            return node
+        
+        return None
                 
     def children(self, node=None, path=None):
         """Get all children of a node.
@@ -268,8 +310,8 @@ class MongoTree(object):
             list. All children of the node with path=parent_path.
         """
         if node is None and path is None:
-            raise ValueError('MongoTree::children:> node or parent_path must '
-                             'be specified as arguments.')
+            raise ValueError('MongoTree::children:> node or path must be '
+                             'specified as arguments.')
         else:
             if path and not hasattr(path, '__iter__'):
                 raise ValueError('children: path argument must be a sequence')
