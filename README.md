@@ -7,6 +7,7 @@ Intro
 -----
 
 A node is represented by the following structure:
+
     {'_id': <ObjectId>,
      'identifier: <string; Used in part of a key to look items up. ie, a user.>
      'label': <string>,
