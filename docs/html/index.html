@@ -1,0 +1,303 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Welcome to pyMongoTree’s documentation! &mdash; pyMongoTree 0.5 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.5',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="pyMongoTree 0.5 documentation" href="#" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="#">pyMongoTree 0.5 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="welcome-to-pymongotree-s-documentation">
+<h1>Welcome to pyMongoTree&#8217;s documentation!<a class="headerlink" href="#welcome-to-pymongotree-s-documentation" title="Permalink to this headline">¶</a></h1>
+<p>Contents:</p>
+<div class="toctree-wrapper compound">
+<ul class="simple">
+</ul>
+</div>
+<span class="target" id="module-mongotree.mongotree"></span><p>Lyle Scott, III
+<a class="reference external" href="mailto:lyle&#37;&#52;&#48;digitalfoo&#46;net">lyle<span>&#64;</span>digitalfoo<span>&#46;</span>net</a>
+<a class="reference external" href="http://digitalfoo.net">http://digitalfoo.net</a></p>
+<p>Copyright (c) 2012 Lyle Scott, III</p>
+<p>Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the &#8220;Software&#8221;), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:</p>
+<p>The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.</p>
+<p>THE SOFTWARE IS PROVIDED &#8220;AS IS&#8221;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.</p>
+<dl class="class">
+<dt id="mongotree.mongotree.MongoTree">
+<em class="property">class </em><tt class="descclassname">mongotree.mongotree.</tt><tt class="descname">MongoTree</tt><big>(</big><em>host='localhost'</em>, <em>port=27017</em>, <em>db_name='mongotree'</em>, <em>uri=None</em>, <em>identifier='mongotree'</em><big>)</big><a class="reference internal" href="_modules/mongotree/mongotree.html#MongoTree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mongotree.mongotree.MongoTree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>An implEementation of modeling MongoDB values as a Tree with nodes
+that have 1 parent and N children.</p>
+<dl class="attribute">
+<dt id="mongotree.mongotree.MongoTree.SEPARATOR">
+<tt class="descname">SEPARATOR</tt><em class="property"> = '|$|'</em><a class="headerlink" href="#mongotree.mongotree.MongoTree.SEPARATOR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongotree.mongotree.MongoTree.children">
+<tt class="descname">children</tt><big>(</big><em>node=None</em>, <em>path=None</em><big>)</big><a class="reference internal" href="_modules/mongotree/mongotree.html#MongoTree.children"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mongotree.mongotree.MongoTree.children" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all children of a node.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">node (dict):  A dict representing a node.
+path (string): The path to use to find a node with a specific</p>
+<blockquote class="last">
+<div>path.</div></blockquote>
+</dd>
+<dt>Returns:</dt>
+<dd>list. All children of the node with path=parent_path.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongotree.mongotree.MongoTree.fromXml">
+<tt class="descname">fromXml</tt><big>(</big><em>xml</em><big>)</big><a class="reference internal" href="_modules/mongotree/mongotree.html#MongoTree.fromXml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mongotree.mongotree.MongoTree.fromXml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build a tree from an XML string.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>xml (string): A string of valid XML.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongotree.mongotree.MongoTree.get_dotgraph">
+<tt class="descname">get_dotgraph</tt><big>(</big><em>roots=None</em><big>)</big><a class="reference internal" href="_modules/mongotree/mongotree.html#MongoTree.get_dotgraph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mongotree.mongotree.MongoTree.get_dotgraph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a dot graph of the tree at a root via Graphviz.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>roots (sequence): Roots to start graphing from.</dt>
+<dd>Default: all roots.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongotree.mongotree.MongoTree.get_node">
+<tt class="descname">get_node</tt><big>(</big><em>path</em><big>)</big><a class="reference internal" href="_modules/mongotree/mongotree.html#MongoTree.get_node"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mongotree.mongotree.MongoTree.get_node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a node at specific path.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>path (sequence): A sequence of tokens representing a path to a node.</dd>
+<dt>Returns:</dt>
+<dd>A dict representing a node || None.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongotree.mongotree.MongoTree.get_roots">
+<tt class="descname">get_roots</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/mongotree/mongotree.html#MongoTree.get_roots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mongotree.mongotree.MongoTree.get_roots" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the root nodes that contain the start of a tree.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>list. A list of nodes with no parents (the &#8220;Top&#8221; nodes).</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongotree.mongotree.MongoTree.node_count">
+<tt class="descname">node_count</tt><big>(</big><em>roots=None</em><big>)</big><a class="reference internal" href="_modules/mongotree/mongotree.html#MongoTree.node_count"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mongotree.mongotree.MongoTree.node_count" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return how many nodes there are in the tree.</p>
+<dl class="docutils">
+<dt>Args (sequence): Optional. Instead of all roots, specify nodes to start</dt>
+<dd>the traversal from.</dd>
+<dt>Returns:</dt>
+<dd>int</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongotree.mongotree.MongoTree.parent">
+<tt class="descname">parent</tt><big>(</big><em>path</em><big>)</big><a class="reference internal" href="_modules/mongotree/mongotree.html#MongoTree.parent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mongotree.mongotree.MongoTree.parent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the parent of a node.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>path (sequence): A sequence of tokens representing a path to a node.</dd>
+<dt>Returns:</dt>
+<dd>A dict representing a node || None.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongotree.mongotree.MongoTree.path_exists">
+<tt class="descname">path_exists</tt><big>(</big><em>path</em><big>)</big><a class="reference internal" href="_modules/mongotree/mongotree.html#MongoTree.path_exists"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mongotree.mongotree.MongoTree.path_exists" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if a nodes exists at a specified path.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>path (sequence): A sequence of tokens representing a path to a node.</dd>
+<dt>Returns:</dt>
+<dd>bool.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongotree.mongotree.MongoTree.remove">
+<tt class="descname">remove</tt><big>(</big><em>node</em><big>)</big><a class="reference internal" href="_modules/mongotree/mongotree.html#MongoTree.remove"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mongotree.mongotree.MongoTree.remove" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove a node from the tree. If it has children, remove those, too.</p>
+<dl class="docutils">
+<dt>Arg:</dt>
+<dd>node (dict):  A dict representing a node.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongotree.mongotree.MongoTree.traverse">
+<tt class="descname">traverse</tt><big>(</big><em>node</em>, <em>function=None</em>, <em>nodes=None</em><big>)</big><a class="reference internal" href="_modules/mongotree/mongotree.html#MongoTree.traverse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mongotree.mongotree.MongoTree.traverse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Traverse the tree, optionally running a function on each node.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first docutils">
+<dt>node (dict): A dict representing a parent node that will have its</dt>
+<dd>children traversed (if there are any).</dd>
+<dt>function (function): A function to run on a node when it is</dt>
+<dd>traversed.</dd>
+</dl>
+<p class="last">nodes (list): Holds all nodes that have been recursively traversed.</p>
+</dd>
+<dt>Returns:</dt>
+<dd>list. A list of all nodes that were traversed.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongotree.mongotree.MongoTree.upsert">
+<tt class="descname">upsert</tt><big>(</big><em>path</em>, <em>obj=None</em>, <em>hit_inc=1</em><big>)</big><a class="reference internal" href="_modules/mongotree/mongotree.html#MongoTree.upsert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mongotree.mongotree.MongoTree.upsert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a node to the tree.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>path (sequence): A sequence of tokens representing a path to a node.
+obj (pickle): A pickled object stored as a blob on a node.
+hit_inc (int): Incremenet the nodes hit counter.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongotree.mongotree.MongoTree.valid_node">
+<tt class="descname">valid_node</tt><big>(</big><em>node</em><big>)</big><a class="reference internal" href="_modules/mongotree/mongotree.html#MongoTree.valid_node"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mongotree.mongotree.MongoTree.valid_node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indicate if a node is &#8220;valid&#8221;, where valid indicates that it has all
+and only the keys it is supposed to have.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>node (dict):  A dict representing a node.</dd>
+<dt>Returns:</dt>
+<dd>bool</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><em>Index</em></a></li>
+<li><a class="reference internal" href="py-modindex.html"><em>Module Index</em></a></li>
+<li><a class="reference internal" href="search.html"><em>Search Page</em></a></li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Welcome to pyMongoTree&#8217;s documentation!</a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/index.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="#">pyMongoTree 0.5 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Lyle Scott, III.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
