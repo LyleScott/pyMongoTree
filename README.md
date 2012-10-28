@@ -69,5 +69,3 @@ Example
     True
     
 ![ScreenShot](https://raw.github.com/LyleScott/pyMongoTree/master/docs/mongotree.png)
-)
-    
