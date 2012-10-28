@@ -68,6 +68,6 @@ Example
     >>> graph.write_png('/tmp/mongotree.png')
     True
     
-![ScreenShot](https://raw.github.com/i-saumitra/Voice-controlled-MP3-Player/master/screenshot.jpg)
+![ScreenShot](https://raw.github.com/LyleScott/pyMongoTree/master/docs/mongotree.png)
 )
     
