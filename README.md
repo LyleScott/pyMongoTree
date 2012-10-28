@@ -46,21 +46,28 @@ Example
     >>> 
     >>> path = ['select', 'id', 'from', 'bar']
     >>> mtree.upsert(path)
-    >>> print mtree.node_count()
+    >>>
+    >>> mtree.node_count()
     9
     >>> print mtree.path_exists(['select', 'id', 'from'])
     True
+    >>>
     >>> node = mtree.get_node(['select', '*'])
-    >>> print pprint(node)
-    {u'_id': ObjectId('508b8f9a196944daa0f4a89b'),
-     u'children': [ObjectId('508b8f9a196944daa0f4a89c')],
-     u'hits': 4,
+    >>>
+    >>> pprint(node)
+    {u'_id': ObjectId('508d7ba3acbc3a620cce684c'),
+     u'children': [ObjectId('508d7ba3acbc3a620cce684d')],
+     u'hits': 2,
      u'identifier': u'mongotree',
      u'label': u'*',
      u'obj': None,
-     u'parent': ObjectId('508b8f9a196944daa0f4a89a'),
+     u'parent': ObjectId('508d7ba3acbc3a620cce684b'),
      u'path': u'select|$|*'}
     >>> 
     >>> graph = mtree.get_dotgraph()
     >>> graph.write_png('/tmp/mongotree.png')
+    True
+    
+![ScreenShot](https://raw.github.com/i-saumitra/Voice-controlled-MP3-Player/master/screenshot.jpg)
+)
     
