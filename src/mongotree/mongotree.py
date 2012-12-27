@@ -25,10 +25,11 @@ THE SOFTWARE.
 """
 
 from lxml import etree
+from pprint import pformat
 
+import bson
 import pydot
 import pymongo
-from pprint import pformat
 
 
 class MongoTree(object):
@@ -65,33 +66,54 @@ class MongoTree(object):
             s.extend(self.traverse(root))
         return pformat(s)
 
-    def get_node(self, path):
+    def get_node_by_objectid(self, object_id):
+        """Return a node with an id_ of object_id.
+        
+        Arguments:
+            object_id (string | bson.objectid.ObjectId): The key of the id_ 
+            lookup. If a string is provided, an ObjectId object will try to be
+            derived.
+        
+        Returns:
+            A dict representing a node || None.
+        """
+        if not isinstance(object_id, bson.ObjectId):
+            object_id = bson.objectid.ObjectId(object_id)
+            
+        key = {'_id': object_id}
+        
+        return self.db.treefoo.find_one(key) or None
+    
+    def get_node_by_path(self, path):
         """Return a node at specific path.
 
         Arguments:
-            path (sequence): A sequence of tokens representing a path to a node.
+            path (string | list of tokens): The path that will be on a node.
 
         Returns:
             A dict representing a node || None.
         """
-        path = self.SEPARATOR.join(path)
+        if hasattr(path, '__iter__'):
+            path = self.SEPARATOR.join(path)
+            
         key = {'identifier': self.identifier, 'path': path}
-
-        result = self.db.treefoo.find_one(key)
-
-        return result or None
+        
+        return self.db.treefoo.find_one(key) or None
 
     def path_exists(self, path):
         """Check if a nodes exists at a specified path.
 
         Arguments:
-            path (sequence): A sequence of tokens representing a path to a node.
+            path (string | list of tokens): The path that will be on a node.
 
         Returns:
             bool.
         """
-        path = self.SEPARATOR.join(path)
+        if hasattr(path, '__iter__'):
+            path = self.SEPARATOR.join(path)
+            
         key = {'identifier': self.identifier, 'path': path}
+        
         return bool(self.db.treefoo.find_one(key))
 
     def get_dotgraph(self, roots=None):
@@ -100,8 +122,10 @@ class MongoTree(object):
         Arguments:
             roots (sequence): Roots to start graphing from.
                 Default: all roots.
+                
+        Returns:
+            A pydot object representing a tree of nodes.
         """
-
         if roots and not getattr(roots, '__iter__', False):
             raise ValueError('get_dotgraph: roots argument must be a sequence')
 
@@ -150,7 +174,7 @@ class MongoTree(object):
         if function:
             function(node)
 
-        # Traverse each child.
+        # Recursively traverse each child.
         for child in node['children']:
             child = self.db.treefoo.find_one({'_id': child})
             self.traverse(child, function=function, nodes=nodes)
@@ -158,10 +182,11 @@ class MongoTree(object):
         return nodes
 
     def node_count(self, roots=None):
-        """Return how many nodes there are in the tree.
+        """Return how many nodes there are in the tree starting at a root.
 
-        Args (sequence): Optional. Instead of all roots, specify nodes to start
-            the traversal from.
+        Arguments:
+            roots (sequence): Optional. Instead of all roots, specify nodes to
+            start the traversal from.
 
         Returns:
             int
@@ -177,7 +202,7 @@ class MongoTree(object):
         """Get the root nodes that contain the start of a tree.
 
         Returns:
-            list. A list of nodes with no parents (the "Top" nodes).
+            A list of nodes with no parents (the "Top" nodes).
         """
         key = {'identifier': self.identifier, 'parent': None}
         return [row for row in self.db.treefoo.find(key)]
@@ -186,17 +211,17 @@ class MongoTree(object):
         """Add a node to the tree.
 
         Arguments:
-            path (sequence): A sequence of tokens representing a path to a node.
+            path (string | list of tokens): The path that will be on a node.
             obj (pickle): A pickled object stored as a blob on a node.
             hit_inc (int): Incremenet the nodes hit counter.
         """
-        if not getattr(path, '__iter__', False):
-            raise ValueError('upsert: path argument must be a sequence')
-
+        if hasattr(path, '__iter__'):
+            path = self.SEPARATOR.join(path)
+            
         current_path = ''
         parent_objid = None
 
-        for token in path:
+        for token in path.split(self.SEPARATOR):
 
             if current_path:
                 # Concatenate current_path with the incoming token.
@@ -212,6 +237,8 @@ class MongoTree(object):
             values = {}
 
             # Increment the hit counter.
+            # TODO - needs to not be here. If this is desired, it needs to
+            # be passed in generically.
             values.setdefault('$inc', {})['hits'] = hit_inc
 
             # Create a new row for the node if it doesn't exist.
@@ -221,7 +248,7 @@ class MongoTree(object):
                 values['$set']['children'] = []
 
             # Blob data associated with the node.
-            if obj and current_path == self.SEPARATOR.join(path):
+            if obj and current_path == path:
                 values.setdefault('$set', {})['obj'] = obj
             else:
                 values.setdefault('$set', {})['obj'] = None
@@ -263,7 +290,7 @@ class MongoTree(object):
     def remove(self, node):
         """Remove a node from the tree. If it has children, remove those, too.
 
-        Arg:
+        Arguments:
             node (dict):  A dict representing a node.
         """
         if not self.valid_node(node):
@@ -278,16 +305,18 @@ class MongoTree(object):
 
         self.db.treefoo.remove({'_id': node['_id']})
 
-    def parent(self, path):
+    def get_parent(self, path):
         """Get the parent of a node.
 
         Arguments:
-            path (sequence): A sequence of tokens representing a path to a node.
+             path (string | list of tokens): The path that will be on a node.
 
         Returns:
             A dict representing a node || None.
         """
-        path = self.SEPARATOR.join(path)
+        if hasattr(path, '__iter__'):
+            path = self.SEPARATOR.join(path)
+            
         key = {'identifier': self.identifier, 'path': path}
         result = self.db.treefoo.find_one(key)
 
@@ -298,30 +327,41 @@ class MongoTree(object):
 
         return None
 
-    def children(self, node=None, path=None):
+    def get_children(self, path):
         """Get all children of a node.
 
         Arguments:
-            node (dict):  A dict representing a node.
-            path (string): The path to use to find a node with a specific
-                path.
+             path (string | list of tokens): The path that will be on a node.
 
         Returns:
             list. All children of the node with path=parent_path.
         """
-        if node is None and path is None:
-            raise ValueError('MongoTree::children:> node or path must be '
-                             'specified as arguments.')
-        else:
-            if path and not hasattr(path, '__iter__'):
-                raise ValueError('children: path argument must be a sequence')
+        if hasattr(path, '__iter__'):
+            path = self.SEPARATOR.join(path)
 
-        if node:
-            return node['children']
-
-        node = self.get_node(path)
-
-        return node['children']
+        node = self.get_node_by_path(path)
+        
+        if not node:
+            return []
+        
+        return [self.get_node_by_objectid(child) for child in node['children']]
+    
+    def get_leaf_nodes(self, root):
+        """Get all leaf nodes.
+        
+        Arguments:
+            root (node): The root node to start finding leaves from.
+            leaves (list): A collection of leaf nodes that the recursive 
+                function uses to keep track of nodes.
+            
+        Returns:
+            list of leaf nodes.
+        """        
+        results = self.db.treefoo.find({'path':
+                                {'$regex': '^%s%s' % (root, self.SEPARATOR)},
+                              'children': []})
+        
+        return [row for row in results]
 
     def fromXml(self, xml):
         """Build a tree from an XML string.

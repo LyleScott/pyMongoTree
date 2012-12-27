@@ -151,21 +151,14 @@ class MongoTreeTest(unittest.TestCase):
         path = ['select', '*', 'from']
         self.tree.upsert(path)
 
-        assert self.tree.get_node(['select'])['hits'] == 2
-        assert self.tree.get_node(['select', '*'])['hits'] == 2
-        assert self.tree.get_node(['select', '*', 'from'])['hits'] == 1
+        assert self.tree.get_node_by_path(['select'])['hits'] == 2
+        assert self.tree.get_node_by_path(['select', '*'])['hits'] == 2
+        assert self.tree.get_node_by_path(['select', '*', 'from'])['hits'] == 1
 
         path = ['select', 'id']
         self.tree.upsert(path, hit_inc=10)
-        assert self.tree.get_node(['select'])['hits'] == 12
-        assert self.tree.get_node(['select', 'id'])['hits'] == 10
-
-        self.drop_db()
-
-    def test_upsert_with_invalid_path(self):
-        """upsert() should save the correct information to the DB."""
-        path = 'select * from'
-        self.assertRaises(ValueError, self.tree.upsert, path)
+        assert self.tree.get_node_by_path(['select'])['hits'] == 12
+        assert self.tree.get_node_by_path(['select', 'id'])['hits'] == 10
 
         self.drop_db()
 
@@ -175,7 +168,10 @@ class MongoTreeTest(unittest.TestCase):
         pkl = json.loads(jsonpickle.encode('foobar'))
         self.tree.upsert(path, obj=pkl)
 
-        node = self.tree.get_node(path)
+        node = self.tree.get_node_by_path(path)
+        
+        print 'NODE', node
+        
         assert pkl == node['obj']
 
         assert jsonpickle.decode(json.dumps(pkl)) == 'foobar'
@@ -250,24 +246,7 @@ class MongoTreeTest(unittest.TestCase):
 
         self.assertRaises(ValueError, self.tree.get_dotgraph, 'select')
 
-    def test_get_children_via_node(self):
-        """Get all children of a node."""
-        path = ['select', 'foo', 'from']
-        self.tree.upsert(path)
-        path = ['select', 'bar', 'from']
-        self.tree.upsert(path)
-        path = ['select', 'baz', 'from']
-        self.tree.upsert(path)
-        path = ['select', 'baz', 'derp']
-        self.tree.upsert(path)
-
-        root = self.tree.get_roots()[0]
-        children = self.tree.children(node=root)
-        assert len(children) == 3
-
-        self.drop_db()
-
-    def test_get_children_via_path(self):
+    def test_get_children(self):
         """Get all children of a node."""
         path = ['select', 'foo', 'from']
         self.tree.upsert(path)
@@ -279,50 +258,43 @@ class MongoTreeTest(unittest.TestCase):
         self.tree.upsert(path)
 
         path = ['select']
-        children = self.tree.children(path=path)
+        children = self.tree.get_children(path=path)
         assert len(children) == 3
 
-        node = self.tree.get_node(path=['select', 'baz'])
-        children = self.tree.children(node=node)
+        node = self.tree.get_node_by_path(path=['select', 'baz'])
+        children = self.tree.get_children(node['path'])
         assert len(children) == 2
 
         self.drop_db()
 
-    def test_get_children_no_args(self):
+    def test_get_children_with_invalid_path(self):
         """Supplying no args should blow up. Need a node or a path."""
-        path = ['select', 'foo', 'from']
+        path = ['select', 'foo', 'from', 'yeah', 'man']
         self.tree.upsert(path)
-        self.assertRaises(ValueError, self.tree.children)
+        assert self.tree.get_children(path) == []
+
         self.drop_db()
 
-    def test_get_children_invalid_path(self):
-        """Supplying no args should blow up. Need a node or a path."""
-        path = ['select', 'foo', 'from']
-        self.tree.upsert(path)
-        kwargs = {'path': 'select * from'}
-        self.assertRaises(ValueError, self.tree.children, **kwargs)
-        self.drop_db()
-
-    def test_get_node(self):
+    def test_get_node_by_path(self):
         """Get a node belonging to a path."""
         path1 = ['select', 'foo', 'from']
         self.tree.upsert(path1)
         path2 = ['select', 'foo', 'blah']
         self.tree.upsert(path2)
 
-        node = self.tree.get_node(['select', 'foo'])
+        node = self.tree.get_node_by_path(['select', 'foo'])
         assert node['label'] == 'foo'
 
-        node = self.tree.get_node(path2)
+        node = self.tree.get_node_by_path(path2)
         assert node['label'] == 'blah'
 
         self.drop_db()
 
-    def test_get_node_invalid_path(self):
+    def test_get_node_by_path_invalid_path(self):
         """Get a node belonging to a path."""
         path = ['select', 'foo', 'from']
         self.tree.upsert(path)
-        assert self.tree.get_node(['bar']) is None
+        assert self.tree.get_node_by_path(['bar']) is None
 
         self.drop_db()
 
@@ -333,17 +305,17 @@ class MongoTreeTest(unittest.TestCase):
         path2 = ['select', 'foo', 'from', 'baz']
         self.tree.upsert(path2)
 
-        node = self.tree.get_node(path1)
+        node = self.tree.get_node_by_path(path1)
         self.tree.remove(node)
 
-        assert self.tree.get_node(path1) is None
+        assert self.tree.get_node_by_path(path1) is None
 
-        node = self.tree.get_node(['select', 'foo'])
+        node = self.tree.get_node_by_path(['select', 'foo'])
         self.tree.remove(node)
 
-        assert self.tree.get_node(['select', 'foo', 'bar']) is None
-        assert self.tree.get_node(['select', 'foo', 'baz']) is None
-        assert self.tree.get_node(['select', 'foo']) is None
+        assert self.tree.get_node_by_path(['select', 'foo', 'bar']) is None
+        assert self.tree.get_node_by_path(['select', 'foo', 'baz']) is None
+        assert self.tree.get_node_by_path(['select', 'foo']) is None
 
         self.drop_db()
 
@@ -359,7 +331,7 @@ class MongoTreeTest(unittest.TestCase):
         path = ['select', 'foo', 'from', 'bar']
         self.tree.upsert(path)
 
-        assert self.tree.parent(path)['label'] == 'from'
+        assert self.tree.get_parent(path)['label'] == 'from'
 
         self.drop_db()
 
@@ -368,7 +340,7 @@ class MongoTreeTest(unittest.TestCase):
         path = ['select', 'foo', 'from', 'bar']
         self.tree.upsert(path)
 
-        assert self.tree.parent(['select', 'invalid', 'path']) is None
+        assert self.tree.get_parent(['select', 'invalid', 'path']) is None
 
         self.drop_db()
 
